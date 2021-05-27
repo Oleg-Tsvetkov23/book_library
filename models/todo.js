@@ -9,6 +9,7 @@ class Todo {
         this.fileCover = cover
         this.fileName = fname
         this.id = id;
+        this.fileBook = ""
     }
 }
 
