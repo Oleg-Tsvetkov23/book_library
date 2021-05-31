@@ -1,5 +1,5 @@
-const Todo = require('./todo');
+const Books = require('./books');
 
 module.exports = {
-    Todo,
+    Books,
 };
