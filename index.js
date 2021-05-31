@@ -18,10 +18,10 @@ app.use('/public', express.static(__dirname+"/public"))
 
 app.use(Logger)
 
-const todoRouter = require('./routes/bookroute')
+const libraryRouter = require('./routes/bookroute')
 const usersRouter = require('./routes/users')
 
-app.use('/api/books', todoRouter)
+app.use('/api/books', libraryRouter)
 app.use('/api/user', usersRouter)
 
 app.use(errorMiddleware)
