@@ -1,93 +1,32 @@
 const express = require('express')
 require('dotenv').config()
 const cors = require('cors')
-const formData = require('express-form-data')
+//const formData = require('express-form-data')
+const bodyParser = require('body-parser')
 
 const app = express()
 app.use(cors())
-app.use(formData.parse())
+//app.use(formData.parse())
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json())
+//app.use(bodyParser());
 
-const {Todo} = require('./models');
-const storage = {
-    todo: [],
-};
+const Logger = require('./middleware/logger')
+const errorMiddleware = require('./middleware/error')
 
-[1,2,3,4].map(item => {
-    const nTodo = new Todo(`title${item}`, `desc${item}`, `author${item}`)
-    storage.todo.push(nTodo)
-})
+app.use('/public', express.static(__dirname+"/public"))
 
-app.post('/api/user/login', (req, res) => {
-    const otv = {
-        "id" : 1,
-        "mail" : "test@mail.ru"
-    }
-    res.status(201).json(otv)
-})
+app.use(Logger)
 
-app.get('/api/books', (req, res) => {
-    const {todo} = storage
-    res.json(todo)
-})
+const libraryRouter = require('./routes/bookroute')
+const usersRouter = require('./routes/users')
 
-app.get('/api/books/:id', (req, res) => {
-    const {todo} = storage
-    const {id} = req.params
-    const idx = todo.findIndex(item => item.id === id)
-    if (idx !== -1) {
-        res.json(todo[idx])
-    } else {
-        res.status(404)
-        res.json("todo | not found")
-    } 
-})
+app.use('/api/books', libraryRouter)
+app.use('/api/user', usersRouter)
 
-app.post('/api/books', (req, res) => {
-    const {todo} = storage
-    const {title, description, authors, favorite, fileCover, fileName } = req.body
-    const nTodo = new Todo(title, description, authors, favorite, fileCover, fileName)
-    todo.push(nTodo)
-    res.status(201)
-    res.json(nTodo)
-})
-
-app.put('/api/books/:id', (req, res) => {
-    const {todo} = storage
-    const {id} = req.params
-    const {title, description, authors, favorite, fileCover, fileName} = req.body
-    const idx = todo.findIndex(item => item.id === id)
-    if (idx !== -1) {
-        todo[idx] = {
-            ...todo[idx],
-            title,
-            description,
-            authors,
-            favorite,
-            fileCover,
-            fileName
-        };
-        res.json(todo[idx])
-    } else {
-        res.status(404)
-        res.json("todo | not found")
-    } 
-})
-
-app.delete('/api/books/:id', (req, res) => {
-    const {todo} = storage
-    const {id} = req.params
-    const {title, description, authors, favorite, fileCover, fileName} = req.body
-    const idx = todo.findIndex(item => item.id === id)
-    if (idx !== -1) {
-        todo.splice(idx, 1)
-        res.json("Ok")
-    } else {
-        res.status(404)
-        res.json("todo | not found")
-    } 
-})
+app.use(errorMiddleware)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`)
 });
