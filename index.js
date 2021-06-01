@@ -1,27 +1,28 @@
 const express = require('express')
 require('dotenv').config()
 const cors = require('cors')
-//const formData = require('express-form-data')
 const bodyParser = require('body-parser')
+const Logger = require('./middleware/logger')
+const errorMiddleware = require('./middleware/error')
+const libraryApiRouter = require('./routes/api/bookroute')
+const usersRouter = require('./routes/users')
+const indexRouter = require('./routes/index')
+const bookRouter = require('./routes/book')
 
 const app = express()
 app.use(cors())
-//app.use(formData.parse())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
-//app.use(bodyParser());
+app.set("view engine", "ejs");
 
-const Logger = require('./middleware/logger')
-const errorMiddleware = require('./middleware/error')
 
 app.use('/public', express.static(__dirname+"/public"))
 
 app.use(Logger)
 
-const libraryRouter = require('./routes/bookroute')
-const usersRouter = require('./routes/users')
-
-app.use('/api/books', libraryRouter)
+app.use('/', indexRouter)
+app.use('/book', bookRouter)
+app.use('/api/books', libraryApiRouter)
 app.use('/api/user', usersRouter)
 
 app.use(errorMiddleware)
